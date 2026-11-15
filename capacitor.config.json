@@ -1,0 +1,6 @@
+{
+  "appId": "za.co.lewendew.songs",
+  "appName": "LW Songs",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}
