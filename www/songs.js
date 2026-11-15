@@ -879,27 +879,28 @@ function sharePdf(){
   const ids=currentSet.song_ids||[];
   if(!ids.length){alert("This setlist is empty.");return;}
   const songs=ids.map(function(id){return SONGS.find(function(s){return s.id===id;});}).filter(Boolean);
-  var html='<html><head><meta charset="utf-8"><title>'+esc(currentSet.name)+'</title><style>'+
-    '@page{margin:1.5cm;}body{font-family:Arial,sans-serif;color:#000;}'+
-    '.pg{page-break-after:always;}'+
-    'h2{font-size:20px;margin:0 0 14px;border-bottom:2px solid #000;padding-bottom:6px;}'+
-    'h2 .k{font-size:13px;font-weight:normal;color:#555;float:right;}'+
-    '.cp{font-family:"Courier New",monospace;font-size:13px;line-height:1.35;white-space:pre-wrap;}'+
-    '.cp .sec{font-family:Arial;font-weight:bold;text-transform:uppercase;font-size:12px;margin:12px 0 4px;color:#000;}'+
-    '.cp .chordrow{font-weight:bold;white-space:pre;}'+
-    '.cp .lyricrow{white-space:pre;margin-bottom:4px;}'+
-    '.cp .songtitle{display:none;}'+
-    '</style></head><body>'+
-    songs.map(songPlainHtml).join("")+
-    '</body></html>';
-  var _pf=document.getElementById("__printframe"); if(_pf){try{_pf.remove();}catch(e){}}
-  var ifr=document.createElement("iframe"); ifr.id="__printframe";
-  ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;";
-  document.body.appendChild(ifr);
-  var _d=ifr.contentWindow.document; _d.open(); _d.write(html); _d.close();
-  setTimeout(function(){ try{ ifr.contentWindow.focus(); ifr.contentWindow.print(); }catch(e){ try{window.print();}catch(_e){} } setTimeout(function(){ try{ifr.remove();}catch(e){} },3000); },450);
+  var oldA=document.getElementById("__printarea"); if(oldA){try{oldA.remove();}catch(e){}}
+  var css='<style id="__printcss">'
+    +'@media screen{#__printarea{display:none!important;}}'
+    +'@media print{'
+    +' body>*:not(#__printarea){display:none!important;}'
+    +' #__printarea{display:block!important;color:#000;background:#fff;font-family:Arial,sans-serif;}'
+    +' #__printarea .pg{page-break-after:always;}'
+    +' #__printarea h2{font-size:20px;margin:0 0 14px;border-bottom:2px solid #000;padding-bottom:6px;}'
+    +' #__printarea h2 .k{font-size:13px;font-weight:normal;color:#555;float:right;}'
+    +' #__printarea .cp{font-family:\'Courier New\',monospace;font-size:13px;line-height:1.35;white-space:pre-wrap;}'
+    +' #__printarea .cp .sec{font-family:Arial;font-weight:bold;text-transform:uppercase;font-size:12px;margin:12px 0 4px;}'
+    +' #__printarea .cp .chordrow{font-weight:bold;white-space:pre;}'
+    +' #__printarea .cp .lyricrow{white-space:pre;margin-bottom:4px;}'
+    +' #__printarea .cp .songtitle{display:none;}'
+    +' @page{margin:1.5cm;}'
+    +'}</style>';
+  var area=document.createElement("div");
+  area.id="__printarea";
+  area.innerHTML=css+songs.map(songPlainHtml).join("");
+  document.body.appendChild(area);
+  setTimeout(function(){ try{ window.print(); }catch(e){ alert("Printing isn\'t available on this device."); } }, 300);
 }
-
 /* ---------- SHARE LINK (read-only view) ---------- */
 function shareLink(){
   const url="https://lewendew.co.za/songs/?set="+encodeURIComponent(currentSet.id);
