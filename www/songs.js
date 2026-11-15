@@ -879,7 +879,6 @@ function sharePdf(){
   const ids=currentSet.song_ids||[];
   if(!ids.length){alert("This setlist is empty.");return;}
   const songs=ids.map(function(id){return SONGS.find(function(s){return s.id===id;});}).filter(Boolean);
-  const w=window.open("","_blank");
   var html='<html><head><meta charset="utf-8"><title>'+esc(currentSet.name)+'</title><style>'+
     '@page{margin:1.5cm;}body{font-family:Arial,sans-serif;color:#000;}'+
     '.pg{page-break-after:always;}'+
@@ -893,8 +892,12 @@ function sharePdf(){
     '</style></head><body>'+
     songs.map(songPlainHtml).join("")+
     '</body></html>';
-  w.document.write(html);w.document.close();
-  setTimeout(function(){w.focus();w.print();},400);
+  var _pf=document.getElementById("__printframe"); if(_pf){try{_pf.remove();}catch(e){}}
+  var ifr=document.createElement("iframe"); ifr.id="__printframe";
+  ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;";
+  document.body.appendChild(ifr);
+  var _d=ifr.contentWindow.document; _d.open(); _d.write(html); _d.close();
+  setTimeout(function(){ try{ ifr.contentWindow.focus(); ifr.contentWindow.print(); }catch(e){ try{window.print();}catch(_e){} } setTimeout(function(){ try{ifr.remove();}catch(e){} },3000); },450);
 }
 
 /* ---------- SHARE LINK (read-only view) ---------- */
